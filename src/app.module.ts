@@ -9,6 +9,8 @@ import { HealthModule } from './health/health.module';
 import { MessageModule } from './message/message.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { GroupModule } from './group/group.module';
+import { AuthModule } from './auth/auth.module';
+import { RoleModule } from './role/role.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -81,6 +83,8 @@ import configuration from './config/configuration';
     MessageModule,
     ConversationModule,
     GroupModule,
+    AuthModule,
+    RoleModule,
   ],
 })
 export class AppModule {}

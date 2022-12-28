@@ -9,8 +9,10 @@ import {
   CreateDateColumn,
   OneToMany,
   BeforeInsert,
+  ManyToOne,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Role } from 'src/role/entities/role.entity';
 
 @Entity()
 export class User {
@@ -44,6 +46,16 @@ export class User {
   })
   deletedAt: Date;
 
+  @ManyToOne(
+    () => {
+      return Role;
+    },
+    (role) => {
+      return role.user;
+    },
+  )
+  role: Role;
+
   @OneToMany(
     () => {
       return Conversation;
@@ -65,11 +77,13 @@ export class User {
   groups: Group[];
 
   static password: any;
+
   static id: any;
 
   @BeforeInsert()
   async setPassword(password: string) {
     const salt = await bcrypt.genSalt();
+
     this.password = await bcrypt.hash(password || this.password, salt);
   }
 }

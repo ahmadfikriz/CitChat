@@ -1,22 +1,21 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { EntityNotFoundError, Repository } from 'typeorm';
-import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
+import { Repository, EntityNotFoundError } from 'typeorm';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { Role } from './entities/role.entity';
 
 @Injectable()
-export class UsersService {
+export class RoleService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const result = await this.usersRepository.insert(createUserDto);
+  async create(createRoleDto: CreateRoleDto) {
+    const result = await this.roleRepository.insert(createRoleDto);
 
-    return this.usersRepository.findOneOrFail({
+    return this.roleRepository.findOneOrFail({
       where: {
         id: result.identifiers[0].id,
       },
@@ -24,12 +23,12 @@ export class UsersService {
   }
 
   findAll() {
-    return this.usersRepository.findAndCount();
+    return this.roleRepository.findAndCount();
   }
 
   async findOne(id: string) {
     try {
-      return await this.usersRepository.findOneOrFail({
+      return await this.roleRepository.findOneOrFail({
         where: {
           id,
         },
@@ -49,9 +48,9 @@ export class UsersService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateRoleDto: UpdateRoleDto) {
     try {
-      await this.usersRepository.findOneOrFail({
+      await this.roleRepository.findOneOrFail({
         where: {
           id,
         },
@@ -70,9 +69,9 @@ export class UsersService {
       }
     }
 
-    await this.usersRepository.update(id, updateUserDto);
+    await this.roleRepository.update(id, updateRoleDto);
 
-    return this.usersRepository.findOneOrFail({
+    return this.roleRepository.findOneOrFail({
       where: {
         id,
       },
@@ -81,7 +80,7 @@ export class UsersService {
 
   async remove(id: string) {
     try {
-      await this.usersRepository.findOneOrFail({
+      await this.roleRepository.findOneOrFail({
         where: {
           id,
         },
@@ -100,26 +99,14 @@ export class UsersService {
       }
     }
 
-    await this.usersRepository.delete(id);
+    await this.roleRepository.delete(id);
   }
 
-  hash(plainPassword) {
-    const hash = bcrypt.hashSync(plainPassword, 20);
-
-    return hash;
-  }
-
-  compare(plainPassword, hash) {
-    const valid = bcrypt.compare(plainPassword, hash);
-
-    return valid;
-  }
-
-  async findByUsername(username: string) {
+  async findByRole(name: string) {
     try {
-      return await this.usersRepository.findOneOrFail({
+      return await this.roleRepository.findOneOrFail({
         where: {
-          username,
+          name,
         },
       });
     } catch (error) {
@@ -133,13 +120,5 @@ export class UsersService {
         );
       }
     }
-  }
-
-  async validateUser(username) {
-    return await this.usersRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
-      .where('username = :username', { username: username })
-      .getOne();
   }
 }
