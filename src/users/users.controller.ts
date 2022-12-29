@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -12,6 +13,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { EditPasswordDto } from './dto/edit-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -54,6 +56,18 @@ export class UsersController {
   ) {
     return {
       data: await this.usersService.update(id, updateUserDto),
+      statusCode: HttpStatus.OK,
+      message: 'success',
+    };
+  }
+
+  @Put('password/:id')
+  async updatePassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() editPasswordDto: EditPasswordDto,
+  ) {
+    return {
+      data: await this.usersService.updatePassword(id, editPasswordDto),
       statusCode: HttpStatus.OK,
       message: 'success',
     };

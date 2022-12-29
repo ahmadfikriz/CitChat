@@ -1,3 +1,5 @@
+import { Group } from 'src/group/entities/group.entity';
+import { UserGroup } from 'src/user group/userGroup.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -6,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToMany,
   OneToMany,
 } from 'typeorm';
 
@@ -37,11 +40,11 @@ export class Role {
 
   @OneToMany(
     () => {
-      return User;
+      return UserGroup;
     },
-    (user) => {
-      return user.role;
+    (userGroup) => {
+      return userGroup.role;
     },
   )
-  user: User;
+  userGroup: UserGroup;
 }

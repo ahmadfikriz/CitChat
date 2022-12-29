@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Conversation } from 'src/conversation/entities/conversation.entity';
 import { Group } from 'src/group/entities/group.entity';
 import {
@@ -9,7 +10,8 @@ import {
   CreateDateColumn,
   OneToMany,
   BeforeInsert,
-  ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role } from 'src/role/entities/role.entity';
@@ -46,16 +48,6 @@ export class User {
   })
   deletedAt: Date;
 
-  @ManyToOne(
-    () => {
-      return Role;
-    },
-    (role) => {
-      return role.user;
-    },
-  )
-  role: Role;
-
   @OneToMany(
     () => {
       return Conversation;
@@ -66,15 +58,16 @@ export class User {
   )
   conversations: Conversation[];
 
-  @OneToMany(
+  @ManyToMany(
     () => {
       return Group;
     },
     (group) => {
-      return group.users;
+      return group.user;
     },
   )
-  groups: Group[];
+  @JoinTable({ name: 'user_group' })
+  group: Group[];
 
   static password: any;
 

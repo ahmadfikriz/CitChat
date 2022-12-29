@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -5,6 +6,7 @@ import { EntityNotFoundError, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { EditPasswordDto } from './dto/edit-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +16,13 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const result = await this.usersRepository.insert(createUserDto);
+    const newUser = new User();
+
+    newUser.email = createUserDto.email;
+    newUser.username = createUserDto.username;
+    newUser.password = createUserDto.password;
+
+    const result = await this.usersRepository.insert(newUser);
 
     return this.usersRepository.findOneOrFail({
       where: {
@@ -77,6 +85,38 @@ export class UsersService {
         id,
       },
     });
+  }
+
+  async updatePassword(id: string, editPasswordDto: EditPasswordDto) {
+    await this.usersRepository.findOneOrFail({
+      where: {
+        id: id,
+      },
+    });
+
+    if (editPasswordDto.password === editPasswordDto.confirm_password) {
+      const salt = await bcrypt.genSalt();
+      const passwordBaru = await bcrypt.hash(editPasswordDto.password, salt);
+      const data = await this.usersRepository.findOneOrFail({
+        where: {
+          id: id,
+        },
+      });
+
+      data.password = passwordBaru;
+
+      await this.usersRepository.update({ id }, data);
+
+      return await this.usersRepository.findOneOrFail({ where: { id } });
+    }
+
+    throw new HttpException(
+      {
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: 'Password Harus Sama',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
   }
 
   async remove(id: string) {

@@ -33,8 +33,6 @@ export class AuthService {
     const dataToken = {
       userID: user.id,
       username: user.username,
-      roleID: user.role.id,
-      rolename: user.role.name,
     };
     const token = this.jwtService.sign(dataToken);
     console.log('token:', token);

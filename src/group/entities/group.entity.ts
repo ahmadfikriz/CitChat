@@ -1,4 +1,5 @@
 import { Message } from 'src/message/entities/message.entity';
+import { Role } from 'src/role/entities/role.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -8,6 +9,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 
 @Entity()
@@ -17,11 +19,6 @@ export class Group {
 
   @Column()
   name: string;
-
-  @Column(() => {
-    return User;
-  })
-  users: User[];
 
   @CreateDateColumn({
     type: 'timestamp with time zone',
@@ -40,6 +37,16 @@ export class Group {
     nullable: true,
   })
   deletedAt: Date;
+
+  @ManyToMany(
+    () => {
+      return User;
+    },
+    (user) => {
+      return user.group;
+    },
+  )
+  user: User[];
 
   @OneToMany(
     () => {
